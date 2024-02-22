@@ -1,0 +1,123 @@
+@using RGUHackBlazorWeather.Models
+
+@*
+    Would've demo'd a Bar chart, but they have a bug where they need 2+ datapoints.
+    See https://github.com/MudBlazor/MudBlazor/issues/7736
+*@
+
+<div class="d-flex flex-row flex-wrap gap-4 justify-space-around">
+    <div>
+        <MudText Typo="Typo.h6">Years of Study</MudText>
+        <MudChart ChartType="ChartType.Pie" InputData="@YearOfStudyData" InputLabels="@AllYearsOfStudy" Height="300px" Width="300px"></MudChart>
+    </div>
+    
+    <div>
+        <MudText Typo="Typo.h6">Education Level</MudText>
+        <MudChart ChartType="ChartType.Pie" InputData="@EducationLevelData" InputLabels="@AllEducationLevels" Height="300px" Width="300px"></MudChart>
+    </div>
+    
+    <div>
+        <MudText Typo="Typo.h6">Should Contact vs Year of Study</MudText>
+        <MudChart ChartType="ChartType.Line" ChartSeries="@ShouldContactSeries" XAxisLabels="@AllYearsOfStudy" Height="300px" Width="500px"></MudChart>
+    </div>
+    
+    <div>
+        <MudText Typo="Typo.h6">Dietary Requirements</MudText>
+        <MudChart ChartType="ChartType.Bar" ChartSeries="@DietaryRequirementsSeries" XAxisLabels="@AllDietaryRequirements" Height="300px" Width="100%"></MudChart>
+    </div>
+</div>
+
+@code {
+    // Setting to null! to squash the warning about nullable types
+    // This will always be set by the user of the component, so it's going to be fine.
+    // You could always turn off nullable types, and might be better to for a 24hr hack!
+    [Parameter]
+    [EditorRequired]
+    public IList<RGUHackRegistrationDto> Registrations { get; set; } = null!;
+
+    private double[] YearOfStudyData { get; set; } = [];
+    private string[] AllYearsOfStudy { get; set; } = [];
+    
+    private double[] EducationLevelData { get; set; } = [];
+    private string[] AllEducationLevels { get; set; } = [];
+
+    private List<ChartSeries> ShouldContactSeries { get; set; } = [];
+
+    private string[] AllDietaryRequirements { get; set; } = [];
+    private List<ChartSeries> DietaryRequirementsSeries { get; set; } = [];
+
+    private const string IgnorableField = "Unspecified";
+    
+    // Runs every time the dataset changes
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        
+        AllYearsOfStudy = Registrations
+            .Select(reg => reg.YearOfStudy)
+            .Where(year => year != IgnorableField)
+            .OrderBy(year => year)
+            .Distinct()
+            .ToArray();
+
+        YearOfStudyData = AllYearsOfStudy
+            .Select(v => (double)Registrations.Count(reg => reg.YearOfStudy == v))
+            .ToArray();
+        
+        var allEducationLevels = Registrations
+            .Select(reg => reg.EducationLevel)
+            .Where(level => level != IgnorableField)
+            .OrderBy(reg => reg)
+            .Distinct()
+            .ToList();
+        
+        AllEducationLevels = allEducationLevels
+            .Distinct()
+            .ToArray();
+
+        EducationLevelData = AllEducationLevels
+            .Select(v => (double)allEducationLevels.Count(i => i == v))
+            .ToArray();
+
+        var shouldContactByYear = AllYearsOfStudy
+            .Select(year => GetRatioFor(Registrations, year, true))
+            .ToArray();
+        
+        var shouldNotContactByYear = AllYearsOfStudy
+            .Select(year => GetRatioFor(Registrations, year, false))
+            .ToArray();
+
+        ShouldContactSeries =
+        [
+            new ChartSeries { Name = "% Yes", Data = shouldContactByYear },
+            new ChartSeries { Name = "% No", Data = shouldNotContactByYear },
+        ];
+
+        AllDietaryRequirements = Registrations
+            .Select(reg => reg.DietaryRequirements)
+            .Distinct()
+            .ToArray();
+
+        var dietaryRequirementCounts = AllDietaryRequirements
+            .Select(dr => (double) Registrations.Count(reg => reg.DietaryRequirements == dr))
+            .ToArray();
+
+        DietaryRequirementsSeries =
+        [
+            new ChartSeries { Name = "Registrants", Data = dietaryRequirementCounts }
+        ];
+    }
+
+    private double GetRatioFor(IEnumerable<RGUHackRegistrationDto> registrations, string year, bool shouldContact)
+    {
+        double totalInYear = Registrations
+            .Count(reg => reg.YearOfStudy == year);
+        
+        double numberRequested = Registrations
+            .Where(reg => reg.YearOfStudy == year)
+            .Count(e => e.ShouldBeContacted == shouldContact);
+        
+        return numberRequested / totalInYear * 100;
+    }
+
+}

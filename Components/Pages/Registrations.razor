@@ -1,0 +1,67 @@
+@page "/registrations"
+@using RGUHackBlazorWeather.Models
+@using CsvHelper
+@using System.Globalization
+
+<PageTitle>Weather</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">RGUHack Registrations</MudText>
+<MudText Class="mb-8">This is a quick data-representation demo. All data is anonymized for this example.</MudText>
+
+@* Show a circle loading bar while we wait for the "API" *@
+@if (AllRegistrations == null)
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+else
+{
+    <div class="mb-4">
+        <MudDataGrid Items="@AllRegistrations" RowsPerPage="15">
+            <Columns>
+                <PropertyColumn Property="reg => reg.OrderDate" Title="Order Date">
+                    <CellTemplate>
+                        @context.Item.OrderDate.ToLocalTime().ToShortDateString()
+                    </CellTemplate>
+                </PropertyColumn>
+                <PropertyColumn Property="reg => reg.EducationLevel" Title="Education Level"></PropertyColumn>
+                <PropertyColumn Property="reg => reg.DietaryRequirements" Title="Dietary Requirements"></PropertyColumn>
+                <PropertyColumn Property="reg => reg.YearOfStudy" Title="Year of Study"></PropertyColumn>
+                <PropertyColumn Property="reg => reg.ShouldBeContacted" Title="Contact?">
+                    <CellTemplate>
+                        @(context.Item.ShouldBeContacted ? "Yes" : "No")
+                    </CellTemplate>
+                </PropertyColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="RGUHackRegistrationDto" PageSizeOptions="@([5, 15, 30])" />
+            </PagerContent>
+        </MudDataGrid>
+    </div>
+
+    <div class="mb-4">
+        @* This is an example of a component. This can be used to reuse chunks of layouts and elements. *@
+        <RegistrationGraphs Registrations="AllRegistrations"/>
+    </div>
+}
+
+
+@code {
+    public IList<RGUHackRegistrationDto>? AllRegistrations { get; set; }
+
+    @* The Blazor Lifecycle provides a number of both asynchronous and synchronous methods you can perform work in *@
+    @* General rule of thumb is to use the non-Async ones, until you're doing a task that will take time, or send an API call etc. *@
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        
+        // Simulate asynchronous loading to demonstrate a loading indicator
+        // This is where you would use an API or a Database - check out John's API workshop for more on that!
+        await Task.Delay(500);
+
+        // Load our attendee data from the CSV file.
+        // Uses a popular "NuGet" package, CsvHelper.
+        using var csv = new CsvReader(new StreamReader("attendee-data.csv"), CultureInfo.CurrentCulture);
+        AllRegistrations = csv.GetRecords<RGUHackRegistrationDto>().ToList();
+    }
+
+}

@@ -1,7 +1,8 @@
 @page "/registrations"
-@using RGUHackBlazorWeather.Models
+@using BlazorExample.Models
 @using CsvHelper
 @using System.Globalization
+@using BlazorExample.Services
 
 <PageTitle>Weather</PageTitle>
 
@@ -46,6 +47,9 @@ else
 
 
 @code {
+    [Inject]
+    public ExampleService ExampleService { get; set; } = null!;
+    
     public IList<RGUHackRegistrationDto>? AllRegistrations { get; set; }
 
     @* The Blazor Lifecycle provides a number of both asynchronous and synchronous methods you can perform work in *@
@@ -53,15 +57,9 @@ else
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        
-        // Simulate asynchronous loading to demonstrate a loading indicator
-        // This is where you would use an API or a Database - check out John's API workshop for more on that!
-        await Task.Delay(500);
 
-        // Load our attendee data from the CSV file.
-        // Uses a popular "NuGet" package, CsvHelper.
-        using var csv = new CsvReader(new StreamReader("attendee-data.csv"), CultureInfo.CurrentCulture);
-        AllRegistrations = csv.GetRecords<RGUHackRegistrationDto>().ToList();
+        // Request our registrations list from the service.
+        AllRegistrations = await ExampleService.GetAllRegistrationsAsync();
     }
 
 }

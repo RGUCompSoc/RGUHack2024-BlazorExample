@@ -1,6 +1,6 @@
 using CsvHelper.Configuration.Attributes;
 
-namespace RGUHackBlazorWeather.Models;
+namespace BlazorExample.Models;
 
 public class RGUHackRegistrationDto
 {

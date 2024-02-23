@@ -17,6 +17,7 @@ dotnet new mudblazor --interactivity Server --all-interactive --name <Your Proje
 These are some useful resources if you intend on working with Blazor during the hack. Feel free to find Reece at the hack if you have more questions as you go!
 
 - https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor - Microsoft's introduction to Blazor.
+- https://dotnet.microsoft.com/en-us/learn/aspnet/blazor-tutorial/intro - Blazor introductory tutorial.
 - https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection - Documentation for Dependency Injection
 - https://learn.microsoft.com/en-us/aspnet/entity-framework - Entity Framework; you can use this to write database queries in Linq, consider using Sqlite or something instead of SQL Server for ease of setup during the hack.
 - https://www.mudblazor.com/ - The component library used in this example
@@ -30,5 +31,6 @@ If you don't fancy using Blazor for you app, you can always consider these alter
 - https://ejs.co/ - Taught during RGU classes
 - https://vuejs.org/ - Jordan will be speaking about this one!
 - https://react.dev/ - consider mixing with something like https://nextjs.org/
+- https://flutter.dev/ - Modern Web, Mobile and Desktop Applications!
 - HTML/CSS/JS - classic style!
 - Anything else you may already know!

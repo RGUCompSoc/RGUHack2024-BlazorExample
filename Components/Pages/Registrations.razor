@@ -47,9 +47,15 @@ else
 
 
 @code {
+    // Setting to null! to squash the warning about nullable types
+    // This will always be set by the user of the component, so it's going to be fine.
+    // You could always turn off nullable types, and might be better to for a 24hr hack!
+    
+    // This is a dependency injection. Look at the powerpoint of Microsoft documentation (linked in the documentation in the ExampleService class)
     [Inject]
     public ExampleService ExampleService { get; set; } = null!;
     
+    // As described above, the ? indicates a nullable type, now by default C# types cannot be null.
     public IList<RGUHackRegistrationDto>? AllRegistrations { get; set; }
 
     @* The Blazor Lifecycle provides a number of both asynchronous and synchronous methods you can perform work in *@
